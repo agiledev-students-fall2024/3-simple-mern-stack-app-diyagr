@@ -3,6 +3,8 @@ const express = require('express') // CommonJS import style!
 const morgan = require('morgan') // middleware for nice logging of incoming HTTP requests
 const cors = require('cors') // middleware for enabling CORS (Cross-Origin Resource Sharing) requests.
 const mongoose = require('mongoose')
+const path = require('path');
+
 
 const app = express() // instantiate an Express object
 app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' })) // log all incoming requests, except when in unit test mode.  morgan has a few logging default styles - dev is a nice concise color-coded style
@@ -11,6 +13,8 @@ app.use(cors()) // allow cross-origin resource sharing
 // use express's builtin body-parser middleware to parse any data included in a request
 app.use(express.json()) // decode JSON-formatted incoming POST data
 app.use(express.urlencoded({ extended: true })) // decode url-encoded incoming POST data
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // connect to database
 mongoose
@@ -57,6 +61,8 @@ app.get('/messages/:messageId', async (req, res) => {
     })
   }
 })
+
+
 // a route to handle logging out users
 app.post('/messages/save', async (req, res) => {
   // try to save the message to the database
@@ -77,6 +83,20 @@ app.post('/messages/save', async (req, res) => {
     })
   }
 })
+
+// new route for About Us
+app.get('/about', (req, res) => {
+  const aboutContent = {
+    name: "Diya Agrawal",
+    description: "My name is Diya Agrawal. I am a junior majoring in Computer Science & Data Science. I am a member  of a few clubs on campus. One of them is the Women in Data Science Club, where I am a member of the events  committee. I am passionate about promoting diversity in computer science and data science   enjoy being a part of a space that creates that kind of community. I am also part of a club called NY Masti,  which is a female South Asian acapella club. I love singing and am very passionate about music, so I have enjoyed being a part of this club. Last year we had the oppurtunity to sing the national anthem for the Brooklyn Nets, during AAPI month which was really cool!" ,
+    imageUrl: "http://localhost:5003/public/image.jpg" 
+  };
+  
+  res.json(aboutContent);
+});
+
+const PORT = 5003;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
 
 // export the express app we created to make it available to other modules
 module.exports = app // CommonJS export style!
